@@ -1,803 +1,288 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ARCHI MANAGER</title>
-<style>
-:root{--bg:#f3f5f9;--panel:#fff;--ink:#172033;--muted:#687386;--line:#e2e7ef;--nav:#17243a;--blue:#315efb;--green:#16835d;--red:#c24141}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,"Malgun Gothic",sans-serif}
-button,input,select,textarea{font:inherit}
-button{border:0;border-radius:8px;padding:10px 13px;background:var(--blue);color:white;cursor:pointer;font-weight:600}
-button.gray{background:#edf0f6;color:#26334b}
-button.red{background:#fff0f0;color:#b42318}
-input,select,textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;background:white;color:var(--ink)}
-.app{min-height:100vh;display:grid;grid-template-columns:220px 1fr}
-aside{background:var(--nav);color:white;padding:22px 14px}
-.brand{font-size:19px;font-weight:bold;margin-bottom:24px}
-nav{display:grid;gap:7px}
-nav button{text-align:left;background:transparent;color:#d7deeb}
-nav button.active,nav button:hover{background:#304260;color:white}
-main{padding:25px;min-width:0}
-header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:22px}
-h1{font-size:27px;margin:5px 0}
-h2{font-size:18px;margin:0 0 13px}
-.muted{color:var(--muted);font-size:12px}
-.page{display:none}.page.active{display:block}
-.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
-.card{background:white;border:1px solid var(--line);border-radius:13px;padding:17px;margin-bottom:14px;min-width:0}
-.metric-label{font-size:13px;color:var(--muted)}
-.metric{font-size:23px;font-weight:bold;margin:10px 0;overflow-wrap:anywhere}
-.section{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:24px 0 12px}
-.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:13px}
-.filters input{max-width:300px}.filters select{width:auto;min-width:145px}
-.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:9px;background:white}
-table{width:100%;border-collapse:collapse;min-width:680px}
-th,td{text-align:left;padding:11px;border-bottom:1px solid #edf0f5;font-size:13px}
-th{background:#f8f9fc;color:#5b6577;font-size:12px}
-tr:last-child td{border-bottom:0}
-.empty{text-align:center;padding:30px;color:var(--muted)}
-.badge{display:inline-block;border-radius:20px;padding:4px 8px;background:#eef2ff;color:#354bb5;font-size:11px;font-weight:bold}
-.badge.green{background:#e7f7ee;color:#18734e}
-.badge.amber{background:#fff4dc;color:#946200}
-.badge.red{background:#fff0f0;color:#b42318}
-.actions{display:flex;gap:5px;flex-wrap:wrap}
-.small{padding:6px 8px;font-size:12px}
-.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.field{display:grid;gap:5px;min-width:0}
-.field label{font-size:12px;font-weight:bold}
-.wide{grid-column:1/-1}
-.line{display:grid;grid-template-columns:1.6fr .7fr .9fr auto;gap:7px;margin:8px 0;align-items:end}
-.totals{max-width:350px;margin:15px 0 0 auto}
-.totalrow{display:flex;justify-content:space-between;padding:7px 0;font-size:13px}
-.totalrow.final{border-top:1px solid var(--line);padding-top:12px;font-size:18px;font-weight:bold}
-.chart{height:220px;display:flex;align-items:flex-end;gap:10px;border-bottom:1px solid var(--line);padding-top:20px}
-.barcol{flex:1;min-width:0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:7px}
-.barspace{height:170px;width:100%;display:flex;align-items:flex-end;justify-content:center}
-.bar{width:min(34px,75%);background:linear-gradient(#7590ff,#315efb);border-radius:5px 5px 0 0;min-height:2px}
-.barlabel{font-size:11px;color:var(--muted)}
-.notice{padding:13px;border:1px solid var(--line);border-radius:9px;margin-bottom:9px}
-.notice.unread{background:#f3f6ff;border-color:#cbd5ff}
-.modal-bg{position:fixed;inset:0;background:#0007;display:none;align-items:center;justify-content:center;padding:15px;z-index:10}
-.modal-bg.show{display:flex}
-.modal{background:white;border-radius:14px;padding:20px;width:min(760px,100%);max-height:92vh;overflow:auto}
-.modalhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:17px}
-.modalfoot{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
-#toast{display:none;position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#17243a;color:white;padding:12px 18px;border-radius:9px;z-index:20;max-width:90%;text-align:center}
-#toast.show{display:block}
-.dot{background:#e5484d;color:white;border-radius:15px;padding:2px 6px;font-size:11px}
-@media(max-width:950px){.grid{grid-template-columns:repeat(2,1fr)}.two{grid-template-columns:1fr}}
-@media(max-width:650px){.app{display:block}aside{padding:12px}.brand{margin-bottom:12px}nav{display:flex;overflow:auto}nav button{white-space:nowrap;font-size:12px;padding:9px}main{padding:14px}.grid{gap:8px}.card{padding:12px}.metric{font-size:19px}.form-grid{grid-template-columns:1fr}.wide{grid-column:auto}.line{grid-template-columns:1fr 1fr}.line .desc{grid-column:1/-1}.line button{grid-column:1/-1}.section{align-items:flex-start}header h1{font-size:22px}}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ARCHI MANAGER</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      background: #f1f4f9;
+      color: #172033;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 420px;
+      padding: 30px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 8px 30px #00000012;
+    }
+
+    h1 {
+      margin-bottom: 5px;
+      font-size: 25px;
+    }
+
+    .subtitle {
+      color: #777;
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      margin: 15px 0 6px;
+      font-size: 14px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #d9dfeb;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 12px;
+      border: 0;
+      border-radius: 8px;
+      background: #315efb;
+      color: white;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    button.secondary {
+      background: #e9edf5;
+      color: #172033;
+    }
+
+    #message {
+      margin-top: 15px;
+      font-size: 14px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    #dashboard {
+      display: none;
+    }
+
+    .info {
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 8px;
+      background: #f1f4f9;
+      overflow-wrap: anywhere;
+    }
+  </style>
 </head>
+
 <body>
-<div class="app">
-<aside>
-  <div class="brand">ARCHI MANAGER</div>
-  <nav>
-    <button class="active" data-page="dashboard">대시보드</button>
-    <button data-page="projects">프로젝트</button>
-    <button data-page="estimates">견적 관리</button>
-    <button data-page="notifications">알림 <span id="navCount"></span></button>
-    <button data-page="backup">백업·CSV</button>
-  </nav>
-  <p class="muted" style="color:#bdc9dc;margin-top:25px">프로젝트와 견적을 한곳에서 관리하세요.</p>
-</aside>
-<main>
-<header>
-  <div><div class="muted">ESTIMATE WORKSPACE</div><h1 id="pageTitle">대시보드</h1></div>
-  <button id="quickProject">＋ 프로젝트</button>
-</header>
+  <div class="container">
 
-<section id="dashboard" class="page active">
-  <div class="grid" id="metrics"></div>
-  <div class="section"><h2>최근 6개월 견적 추이</h2></div>
-  <div class="two">
-    <div class="card"><h2>월별 견적 금액</h2><div id="amountChart" class="chart"></div></div>
-    <div class="card"><h2>월별 견적 건수</h2><div id="countChart" class="chart"></div></div>
-  </div>
-  <div class="section"><h2>최근 프로젝트</h2><button class="gray" data-go="projects">전체 보기</button></div>
-  <div class="card" id="recentProjects"></div>
-  <div class="section"><h2>최근 견적</h2><button class="gray" data-go="estimates">전체 보기</button></div>
-  <div class="card" id="recentEstimates"></div>
-</section>
+    <section id="loginScreen">
+      <h1>ARCHI MANAGER</h1>
+      <div class="subtitle">ESTIMATE WORKSPACE</div>
 
-<section id="projects" class="page">
-  <div class="section"><h2>프로젝트 목록</h2><button id="addProject">＋ 프로젝트 추가</button></div>
-  <div class="filters"><input id="projectSearch" placeholder="프로젝트명 검색"><select id="projectFilter"><option value="">모든 상태</option><option>문의</option><option>견적 작성 중</option><option>견적 제출</option><option>승인</option><option>완료</option><option>보류</option></select></div>
-  <div class="card" id="projectTable"></div>
-</section>
+      <h2 id="formTitle">로그인</h2>
 
-<section id="estimates" class="page">
-  <div class="section"><h2>견적 목록</h2><button id="addEstimate">＋ 견적 작성</button></div>
-  <div class="filters"><input id="estimateSearch" placeholder="견적명, 프로젝트명 검색"><select id="estimateFilter"><option value="">모든 상태</option><option>작성 중</option><option>제출</option><option>승인</option><option>거절</option></select><select id="monthFilter"><option value="">모든 기간</option></select></div>
-  <div class="card" id="estimateTable"></div>
-</section>
+      <label for="email">이메일</label>
+      <input
+        id="email"
+        type="email"
+        autocomplete="username"
+        placeholder="이메일 입력"
+      >
 
-<section id="notifications" class="page">
-  <div class="section"><h2>알림 센터</h2><div class="actions"><button id="refreshNotices" class="gray">새로고침</button><button id="readAll" class="gray">모두 읽음</button></div></div>
-  <div class="card" id="noticeList"></div>
-  <p class="muted">마감일 또는 제출 예정일이 3일 이내인 항목을 표시합니다. 이 HTML을 닫아 둔 동안에는 자동 푸시 알림을 보내지 않습니다.</p>
-</section>
+      <label for="password">비밀번호</label>
+      <input
+        id="password"
+        type="password"
+        autocomplete="current-password"
+        placeholder="비밀번호 입력"
+      >
 
-<section id="backup" class="page">
-  <div class="two">
-    <div class="card"><h2>전체 백업</h2><p class="muted">프로젝트, 견적, 수정 이력, 알림을 JSON 파일로 저장합니다.</p><button id="exportJson">JSON 백업 다운로드</button><div style="height:14px"></div><label class="field"><label>JSON 백업 불러오기</label><input type="file" id="importJson" accept=".json,application/json"></label></div>
-    <div class="card"><h2>엑셀용 CSV</h2><p class="muted">엑셀에서 열 수 있는 CSV 파일로 저장합니다.</p><div class="actions"><button id="exportProjectsCsv">프로젝트 CSV</button><button id="exportEstimatesCsv" class="gray">견적 CSV</button></div></div>
-  </div>
-  <div class="card"><h2>저장 방식</h2><p>데이터는 현재 브라우저에 저장됩니다. 같은 컴퓨터와 브라우저에서 다시 열면 유지되지만 다른 기기와 자동 동기화되지는 않습니다. 정기적으로 JSON 백업을 해 주세요.</p></div>
-</section>
-</main>
-</div>
+      <button id="submitButton" type="button">로그인</button>
 
-<div class="modal-bg" id="modalBg"><div class="modal"><div class="modalhead"><h2 id="modalTitle">추가</h2><button class="gray" id="closeModal">닫기</button></div><div id="modalContent"></div><div class="modalfoot" id="modalFoot"></div></div></div>
-<div id="toast" role="status" aria-live="polite"></div>
+      <button
+        id="switchButton"
+        class="secondary"
+        type="button"
+      >회원가입으로 변경</button>
 
-<script>
-"use strict";
+      <div id="message" role="status"></div>
+    </section>
 
-const KEY = "archi_manager_standalone_v1";
-const $ = id => document.getElementById(id);
-const money = n => new Intl.NumberFormat("ko-KR", {
-  style:"currency", currency:"KRW", maximumFractionDigits:0
-}).format(Number(n)||0);
-const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({
-  "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
-}[c]));
-const today = () => {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-};
-const id = () => globalThis.crypto?.randomUUID
-  ? crypto.randomUUID()
-  : Date.now().toString(36) + Math.random().toString(36).slice(2);
-const blank = () => ({projects:[], estimates:[], notifications:[]});
+    <section id="dashboard">
+      <h1>ARCHI MANAGER</h1>
+      <div class="subtitle">ESTIMATE WORKSPACE</div>
 
-function normalizeDB(raw) {
-  const d = raw && typeof raw === "object" ? raw : {};
-  const projects = Array.isArray(d.projects) ? d.projects : [];
-  const estimates = Array.isArray(d.estimates) ? d.estimates : [];
-  const notifications = Array.isArray(d.notifications) ? d.notifications : [];
+      <h2>로그인 완료</h2>
 
-  return {
-    projects: projects.filter(p => p && typeof p === "object").map(p => ({
-      id: String(p.id || id()),
-      name: String(p.name || "이름 없는 프로젝트"),
-      status: String(p.status || "문의"),
-      start: String(p.start || ""),
-      due: String(p.due || ""),
-      notes: String(p.notes || ""),
-      created: String(p.created || new Date().toISOString())
-    })),
-    estimates: estimates.filter(e => e && typeof e === "object").map(e => {
-      const items = Array.isArray(e.items) ? e.items : [];
-      const cleanItems = items.filter(x => x && typeof x === "object").map(x => ({
-        desc: String(x.desc || ""),
-        qty: Math.max(0, Number(x.qty) || 0),
-        price: Math.max(0, Number(x.price) || 0)
-      }));
-      const c = calc(cleanItems, e.taxRate);
-      const subtotal = Number.isFinite(Number(e.subtotal)) ? Number(e.subtotal) : c.subtotal;
-      const tax = Number.isFinite(Number(e.tax)) ? Number(e.tax) : c.tax;
-      const total = Number.isFinite(Number(e.total)) ? Number(e.total) : subtotal + tax;
-      return {
-        id: String(e.id || id()),
-        title: String(e.title || "이름 없는 견적"),
-        projectId: String(e.projectId || ""),
-        date: String(e.date || today()),
-        due: String(e.due || ""),
-        status: String(e.status || "작성 중"),
-        taxRate: Math.min(100, Math.max(0, Number(e.taxRate) || 0)),
-        items: cleanItems,
-        subtotal, tax, total,
-        paid: Math.max(0, Number(e.paid) || 0),
-        notes: String(e.notes || ""),
-        created: String(e.created || new Date().toISOString()),
-        history: Array.isArray(e.history) ? e.history : []
-      };
-    }),
-    notifications: notifications.filter(n => n && typeof n === "object").map(n => ({
-      ...n,
-      id: String(n.id || id()),
-      title: String(n.title || "알림"),
-      message: String(n.message || ""),
-      date: String(n.date || today()),
-      read: Boolean(n.read)
-    }))
-  };
-}
-
-function load() {
-  try {
-    const raw = localStorage.getItem(KEY);
-    if (!raw) return blank();
-    return normalizeDB(JSON.parse(raw));
-  } catch (error) {
-    console.error("저장 데이터 읽기 실패:", error);
-    return blank();
-  }
-}
-
-let db = load();
-let lines = [];
-let toastTimer = null;
-
-function save() {
-  try {
-    db.projects = db.projects.map(({customer, phone, address, ...p}) => p);
-    localStorage.setItem(KEY, JSON.stringify(db));
-    return true;
-  } catch (error) {
-    console.error("데이터 저장 실패:", error);
-    toast("저장하지 못했어요. 브라우저 저장 공간을 확인해 주세요.");
-    return false;
-  }
-}
-
-function toast(message) {
-  const el = $("toast");
-  el.textContent = message;
-  el.classList.add("show");
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove("show"), 2600);
-}
-
-function project(pid) {
-  return db.projects.find(p => p.id === pid);
-}
-function est(eid) {
-  return db.estimates.find(e => e.id === eid);
-}
-function pname(pid) {
-  return project(pid)?.name || "삭제된 프로젝트";
-}
-function badge(status) {
-  const c = ["승인","완료"].includes(status) ? "green"
-    : ["거절","보류"].includes(status) ? "red"
-    : ["제출","견적 제출"].includes(status) ? "amber" : "";
-  return `<span class="badge ${c}">${esc(status || "—")}</span>`;
-}
-function calc(items, taxRate) {
-  const subtotal = items.reduce((sum, x) =>
-    sum + Math.max(0, Number(x.qty)||0) * Math.max(0, Number(x.price)||0), 0);
-  const tax = Math.round(subtotal * Math.max(0, Number(taxRate)||0) / 100);
-  return {subtotal, tax, total:subtotal+tax};
-}
-
-function showPage(name) {
-  document.querySelectorAll(".page").forEach(p => p.classList.toggle("active", p.id === name));
-  document.querySelectorAll("nav button[data-page]").forEach(b => b.classList.toggle("active", b.dataset.page === name));
-  $("pageTitle").textContent = ({
-    dashboard:"대시보드", projects:"프로젝트 관리",
-    estimates:"견적 관리", notifications:"알림 센터", backup:"백업·CSV"
-  })[name] || "ARCHI MANAGER";
-  if (name === "notifications") renderNotices();
-  if (name === "projects") renderProjects();
-  if (name === "estimates") renderEstimates();
-  if (name === "dashboard") renderDashboard();
-}
-
-document.querySelectorAll("[data-page]").forEach(b => b.onclick = () => showPage(b.dataset.page));
-document.querySelectorAll("[data-go]").forEach(b => b.onclick = () => showPage(b.dataset.go));
-$("quickProject").onclick = () => openProject();
-$("addProject").onclick = () => openProject();
-$("addEstimate").onclick = () => openEstimate();
-$("closeModal").onclick = closeModal;
-$("modalBg").onclick = e => { if (e.target.id === "modalBg") closeModal(); };
-document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
-
-function modal(title, content, saveLabel, saveFn) {
-  $("modalTitle").textContent = title;
-  $("modalContent").innerHTML = content;
-  $("modalFoot").innerHTML = `<button id="cancelModal" class="gray">취소</button><button id="saveModal">${esc(saveLabel || "저장")}</button>`;
-  $("cancelModal").onclick = closeModal;
-  $("saveModal").onclick = saveFn;
-  $("modalBg").classList.add("show");
-}
-function closeModal() {
-  $("modalBg").classList.remove("show");
-}
-
-function openProject(pid = null) {
-  const old = pid ? project(pid) : null;
-  if (pid && !old) { toast("프로젝트를 찾을 수 없어요."); return; }
-  const p = old || {name:"", status:"문의", start:today(), due:"", notes:""};
-
-  modal(old ? "프로젝트 수정" : "프로젝트 추가", `
-    <div class="form-grid">
-      <div class="field"><label>프로젝트명 *</label><input id="pName" value="${esc(p.name)}"></div>
-      <div class="field"><label>상태</label><select id="pStatus">${["문의","견적 작성 중","견적 제출","승인","완료","보류"].map(s => `<option ${p.status===s?"selected":""}>${s}</option>`).join("")}</select></div>
-      <div class="field"><label>시작일</label><input type="date" id="pStart" value="${esc(p.start)}"></div>
-      <div class="field"><label>마감일</label><input type="date" id="pDue" value="${esc(p.due)}"></div>
-      <div class="field wide"><label>메모</label><textarea id="pNotes">${esc(p.notes)}</textarea></div>
-    </div>`, "저장", () => {
-      const name = $("pName").value.trim();
-      if (!name) { toast("프로젝트명을 입력해 주세요."); return; }
-
-      const next = {
-        id: old ? old.id : id(),
-        name,
-        status: $("pStatus").value,
-        start: $("pStart").value,
-        due: $("pDue").value,
-        notes: $("pNotes").value.trim(),
-        created: old ? old.created : new Date().toISOString()
-      };
-
-      const previous = db.projects.slice();
-      if (old) db.projects = db.projects.map(x => x.id === old.id ? next : x);
-      else db.projects.push(next);
-
-      if (!save()) { db.projects = previous; return; }
-      closeModal();
-      refresh();
-      toast("프로젝트를 저장했어요.");
-    });
-}
-
-function renderProjects() {
-  const q = $("projectSearch").value.trim().toLowerCase();
-  const status = $("projectFilter").value;
-  const arr = db.projects.filter(p =>
-    (!q || p.name.toLowerCase().includes(q)) &&
-    (!status || p.status === status)
-  );
-
-  $("projectTable").innerHTML = arr.length ? `
-    <div class="table-wrap"><table><thead><tr>
-      <th>프로젝트</th><th>상태</th><th>마감일</th><th>견적 합계</th><th>작업</th>
-    </tr></thead><tbody>${arr.map(p => `<tr>
-      <td><b>${esc(p.name)}</b></td><td>${badge(p.status)}</td><td>${esc(p.due || "—")}</td>
-      <td>${money(db.estimates.filter(e => e.projectId === p.id).reduce((a,e) => a + e.total, 0))}</td>
-      <td><div class="actions">
-        <button class="small gray" data-edit-p="${esc(p.id)}">수정</button>
-        <button class="small gray" data-copy-p="${esc(p.id)}">복사</button>
-        <button class="small red" data-del-p="${esc(p.id)}">삭제</button>
-      </div></td>
-    </tr>`).join("")}</tbody></table></div>` : '<div class="empty">프로젝트가 없습니다.</div>';
-
-  document.querySelectorAll("[data-edit-p]").forEach(b => b.onclick = () => openProject(b.dataset.editP));
-  document.querySelectorAll("[data-copy-p]").forEach(b => b.onclick = () => {
-    const p = project(b.dataset.copyP);
-    if (!p) return;
-    const previous = db.projects.slice();
-    db.projects.push({...p, id:id(), name:p.name+" (복사본)", status:"문의", start:today(), created:new Date().toISOString()});
-    if (!save()) { db.projects = previous; return; }
-    refresh();
-    toast("프로젝트를 복사했어요.");
-  });
-  document.querySelectorAll("[data-del-p]").forEach(b => b.onclick = () => {
-    const pid = b.dataset.delP;
-    if (db.estimates.some(e => e.projectId === pid)) {
-      toast("연결된 견적을 먼저 삭제해 주세요.");
-      return;
-    }
-    if (!confirm("프로젝트를 삭제할까요?")) return;
-    const previous = db.projects.slice();
-    db.projects = db.projects.filter(p => p.id !== pid);
-    if (!save()) { db.projects = previous; return; }
-    refresh();
-    toast("프로젝트를 삭제했어요.");
-  });
-}
-
-function openEstimate(eid = null) {
-  if (!db.projects.length) {
-    toast("먼저 프로젝트를 추가해 주세요.");
-    openProject();
-    return;
-  }
-  const old = eid ? est(eid) : null;
-  if (eid && !old) { toast("견적을 찾을 수 없어요."); return; }
-
-  lines = old ? old.items.map(x => ({...x})) : [{desc:"", qty:1, price:0}];
-  const e = old || {
-    title:"", projectId:db.projects[0].id, date:today(), due:"",
-    status:"작성 중", taxRate:10, paid:0, notes:""
-  };
-
-  const content = `
-    <div class="form-grid">
-      <div class="field"><label>견적명 *</label><input id="eTitle" value="${esc(e.title)}"></div>
-      <div class="field"><label>프로젝트</label><select id="eProject">${db.projects.map(p => `<option value="${esc(p.id)}" ${e.projectId===p.id?"selected":""}>${esc(p.name)}</option>`).join("")}</select></div>
-      <div class="field"><label>작성일</label><input id="eDate" type="date" value="${esc(e.date || today())}"></div>
-      <div class="field"><label>제출 예정일</label><input id="eDue" type="date" value="${esc(e.due || "")}"></div>
-      <div class="field"><label>상태</label><select id="eStatus">${["작성 중","제출","승인","거절"].map(s => `<option ${e.status===s?"selected":""}>${s}</option>`).join("")}</select></div>
-      <div class="field"><label>부가세율 (%)</label><input id="eTax" type="number" min="0" max="100" value="${e.taxRate ?? 10}"></div>
-      <div class="field wide"><label>견적 항목</label><div id="lines"></div><button type="button" class="gray" id="addLine">＋ 항목 추가</button></div>
-      <div class="field"><label>받은 금액(원)</label><input id="ePaid" type="number" min="0" value="${e.paid || 0}"></div>
-      <div class="field"><label>메모</label><input id="eNotes" value="${esc(e.notes)}"></div>
-    </div><div class="totals" id="totals"></div>
-    <p class="muted">견적을 수정하고 저장하면 이전 버전이 이력에 남습니다.</p>`;
-
-  modal(old ? "견적 수정" : "견적 작성", content, "저장", saveEstimate);
-
-  function drawLines() {
-    $("lines").innerHTML = lines.map((l,i) => `
-      <div class="line">
-        <div class="field desc"><label>항목명</label><input data-desc="${i}" value="${esc(l.desc)}" placeholder="예: 자재비"></div>
-        <div class="field"><label>수량</label><input type="number" min="0" step=".01" data-qty="${i}" value="${l.qty}"></div>
-        <div class="field"><label>단가(원)</label><input type="number" min="0" data-price="${i}" value="${l.price}"></div>
-        <button type="button" class="red small" data-rm="${i}">삭제</button>
-      </div>`).join("");
-
-    document.querySelectorAll("[data-desc]").forEach(x => x.oninput = () => {
-      lines[Number(x.dataset.desc)].desc = x.value;
-    });
-    document.querySelectorAll("[data-qty]").forEach(x => x.oninput = () => {
-      lines[Number(x.dataset.qty)].qty = Math.max(0, Number(x.value)||0);
-      preview();
-    });
-    document.querySelectorAll("[data-price]").forEach(x => x.oninput = () => {
-      lines[Number(x.dataset.price)].price = Math.max(0, Number(x.value)||0);
-      preview();
-    });
-    document.querySelectorAll("[data-rm]").forEach(x => x.onclick = () => {
-      lines.splice(Number(x.dataset.rm), 1);
-      if (!lines.length) lines.push({desc:"", qty:1, price:0});
-      drawLines();
-    });
-    preview();
-  }
-
-  function preview() {
-    const c = calc(lines, $("eTax")?.value);
-    const paid = Number($("ePaid")?.value)||0;
-    const t = $("totals");
-    if (t) t.innerHTML = `
-      <div class="totalrow"><span>공급가액</span><b>${money(c.subtotal)}</b></div>
-      <div class="totalrow"><span>부가세</span><b>${money(c.tax)}</b></div>
-      <div class="totalrow final"><span>총액</span><b>${money(c.total)}</b></div>
-      <div class="totalrow"><span>미수금</span><b>${money(Math.max(0,c.total-paid))}</b></div>`;
-  }
-
-  $("addLine").onclick = () => { lines.push({desc:"",qty:1,price:0}); drawLines(); };
-  ["eTax","ePaid"].forEach(x => $(x).oninput = preview);
-  drawLines();
-
-  function saveEstimate() {
-    const title = $("eTitle").value.trim();
-    const pid = $("eProject").value;
-    if (!title || !project(pid)) {
-      toast("견적명과 프로젝트를 확인해 주세요.");
-      return;
-    }
-
-    const taxInput = Number($("eTax").value);
-    if (!Number.isFinite(taxInput) || taxInput < 0 || taxInput > 100) {
-      toast("부가세율은 0~100 사이로 입력해 주세요.");
-      return;
-    }
-    const paidInput = Number($("ePaid").value);
-    if (!Number.isFinite(paidInput) || paidInput < 0) {
-      toast("받은 금액을 올바르게 입력해 주세요.");
-      return;
-    }
-
-    const items = lines.map(x => ({
-      desc:String(x.desc || "").trim(),
-      qty:Math.max(0, Number(x.qty)||0),
-      price:Math.max(0, Number(x.price)||0)
-    })).filter(x => x.desc);
-
-    if (!items.length) {
-      toast("견적 항목을 하나 이상 입력해 주세요.");
-      return;
-    }
-
-    const c = calc(items, taxInput);
-    const next = {
-      id:old ? old.id : id(),
-      title,
-      projectId:pid,
-      date:$("eDate").value || today(),
-      due:$("eDue").value,
-      status:$("eStatus").value,
-      taxRate:taxInput,
-      items,
-      ...c,
-      paid:paidInput,
-      notes:$("eNotes").value.trim(),
-      created:old ? old.created : new Date().toISOString(),
-      history:old ? [...(old.history || [])] : []
-    };
-
-    if (old) {
-      next.history.push({
-        title:old.title, date:old.date, status:old.status,
-        subtotal:old.subtotal, tax:old.tax, total:old.total,
-        items:old.items.map(x => ({...x})),
-        changedAt:new Date().toISOString()
-      });
-    }
-
-    const previousEstimates = db.estimates.map(x => ({...x}));
-    const previousProjects = db.projects.map(x => ({...x}));
-
-    if (old) db.estimates = db.estimates.map(x => x.id === old.id ? next : x);
-    else db.estimates.push(next);
-
-    const p = project(pid);
-    if (p && next.status === "승인") p.status = "승인";
-    else if (p && next.status === "제출" && p.status !== "승인") p.status = "견적 제출";
-
-    if (!save()) {
-      db.estimates = previousEstimates;
-      db.projects = previousProjects;
-      return;
-    }
-
-    closeModal();
-    refresh();
-    toast("견적을 저장했어요.");
-  }
-}
-
-function renderEstimates() {
-  const q = $("estimateSearch").value.trim().toLowerCase();
-  const status = $("estimateFilter").value;
-  const selectedMonth = $("monthFilter").value;
-  const months = [...new Set(db.estimates.map(e => (e.date||"").slice(0,7)).filter(Boolean))].sort().reverse();
-  const sel = $("monthFilter");
-  sel.innerHTML = '<option value="">모든 기간</option>' + months.map(m => `<option value="${esc(m)}">${esc(m)}</option>`).join("");
-  sel.value = months.includes(selectedMonth) ? selectedMonth : "";
-
-  const arr = db.estimates.filter(e =>
-    (!q || (e.title+" "+pname(e.projectId)).toLowerCase().includes(q)) &&
-    (!status || e.status === status) &&
-    (!sel.value || (e.date||"").startsWith(sel.value))
-  ).sort((a,b) => (b.date||"").localeCompare(a.date||""));
-
-  $("estimateTable").innerHTML = arr.length ? `
-    <div class="table-wrap"><table><thead><tr>
-      <th>견적</th><th>프로젝트</th><th>날짜</th><th>상태</th><th>총액</th><th>받은 금액</th><th>미수금</th><th>작업</th>
-    </tr></thead><tbody>${arr.map(e => `<tr>
-      <td><b>${esc(e.title)}</b><div class="muted">${(e.history||[]).length}회 수정</div></td>
-      <td>${esc(pname(e.projectId))}</td><td>${esc(e.date)}</td><td>${badge(e.status)}</td>
-      <td>${money(e.total)}</td><td>${money(e.paid)}</td><td>${money(Math.max(0,e.total-e.paid))}</td>
-      <td><div class="actions">
-        <button class="small gray" data-edit-e="${esc(e.id)}">수정</button>
-        <button class="small gray" data-hist-e="${esc(e.id)}">이력</button>
-        <button class="small gray" data-pdf-e="${esc(e.id)}">인쇄/PDF</button>
-        <button class="small red" data-del-e="${esc(e.id)}">삭제</button>
-      </div></td>
-    </tr>`).join("")}</tbody></table></div>` : '<div class="empty">견적이 없습니다.</div>';
-
-  document.querySelectorAll("[data-edit-e]").forEach(b => b.onclick = () => openEstimate(b.dataset.editE));
-  document.querySelectorAll("[data-hist-e]").forEach(b => b.onclick = () => historyModal(b.dataset.histE));
-  document.querySelectorAll("[data-pdf-e]").forEach(b => b.onclick = () => printEstimate(b.dataset.pdfE));
-  document.querySelectorAll("[data-del-e]").forEach(b => b.onclick = () => {
-    const eid = b.dataset.delE;
-    if (!confirm("이 견적을 삭제할까요?")) return;
-    const previous = db.estimates.slice();
-    db.estimates = db.estimates.filter(e => e.id !== eid);
-    if (!save()) { db.estimates = previous; return; }
-    refresh();
-    toast("견적을 삭제했어요.");
-  });
-}
-
-function historyModal(eid) {
-  const e = est(eid);
-  if (!e) return;
-  const html = (e.history||[]).length ? `
-    <div class="table-wrap"><table><tr><th>수정 시각</th><th>견적명</th><th>공급가액</th><th>부가세</th><th>총액</th><th>상태</th></tr>
-    ${e.history.map(h => `<tr><td>${esc((h.changedAt||"").replace("T"," ").slice(0,16))}</td>
-    <td>${esc(h.title)}</td><td>${money(h.subtotal)}</td><td>${money(h.tax)}</td><td>${money(h.total)}</td><td>${badge(h.status)}</td></tr>`).join("")}
-    </table></div>` : '<div class="empty">수정 이력이 없습니다.</div>';
-  modal("견적 수정 이력", html, "닫기", closeModal);
-}
-
-function printEstimate(eid) {
-  const e = est(eid);
-  if (!e) return;
-  const p = project(e.projectId);
-  const w = window.open("", "_blank");
-  if (!w) { toast("팝업을 허용한 뒤 다시 시도해 주세요."); return; }
-  w.document.write(`<html lang="ko"><head><meta charset="UTF-8"><title>${esc(e.title)}</title>
-  <style>body{font-family:Arial,"Malgun Gothic",sans-serif;padding:35px;color:#111}h1{text-align:center}table{border-collapse:collapse;width:100%;margin-top:25px}td,th{border:1px solid #aaa;padding:9px;text-align:left}.right{text-align:right}.total{text-align:right;font-size:22px;font-weight:bold;margin-top:20px}@media print{button{display:none}}</style></head><body>
-  <h1>견 적 서</h1><p>프로젝트: ${esc(p?.name||"")}<br>견적명: ${esc(e.title)}<br>견적일: ${esc(e.date)}</p>
-  <table><tr><th>항목</th><th>수량</th><th>단가</th><th>금액</th></tr>
-  ${e.items.map(x => `<tr><td>${esc(x.desc)}</td><td>${x.qty}</td><td>${money(x.price)}</td><td>${money(x.qty*x.price)}</td></tr>`).join("")}</table>
-  <p class="right">공급가액: ${money(e.subtotal)}<br>부가세: ${money(e.tax)}</p>
-  <div class="total">총 견적금액: ${money(e.total)}</div><p>상태: ${esc(e.status)}</p>
-  <button onclick="window.print()">인쇄 / PDF 저장</button></body></html>`);
-  w.document.close();
-}
-
-function monthKeys(n) {
-  const d = new Date(); d.setDate(1);
-  const result = [];
-  for (let i=n-1; i>=0; i--) {
-    const x = new Date(d.getFullYear(), d.getMonth()-i, 1);
-    result.push(`${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,"0")}`);
-  }
-  return result;
-}
-function chart(elementId, arr, isCount=false) {
-  const max = Math.max(1, ...arr.map(x => x.v));
-  $(elementId).innerHTML = arr.map(x => `
-    <div class="barcol"><div class="muted">${isCount ? x.v+"건" : (x.v>=10000 ? Math.round(x.v/10000)+"만" : x.v)}</div>
-    <div class="barspace"><div class="bar" style="height:${Math.max(2,x.v/max*100)}%"></div></div>
-    <div class="barlabel">${x.m.slice(5)}월</div></div>`).join("");
-}
-
-function renderDashboard() {
-  const total = db.estimates.reduce((a,e) => a + e.total, 0);
-  const approved = db.estimates.filter(e => e.status==="승인").reduce((a,e) => a + e.total, 0);
-  const paid = db.estimates.reduce((a,e) => a + Math.min(e.total,e.paid), 0);
-  const due = db.estimates.reduce((a,e) => a + Math.max(0,e.total-e.paid), 0);
-
-  $("metrics").innerHTML = [
-    ["프로젝트",db.projects.length+"건","현재 저장된 데이터 기준"],
-    ["전체 견적",money(total),"모든 견적 합계"],
-    ["승인 견적",money(approved),"승인 상태인 견적"],
-    ["입금액 / 미수금",money(paid),"미수금 "+money(due)]
-  ].map(x => `<div class="card"><div class="metric-label">${x[0]}</div><div class="metric">${x[1]}</div><div class="muted">${x[2]}</div></div>`).join("");
-
-  const keys = monthKeys(6);
-  chart("amountChart", keys.map(m => ({m,v:db.estimates.filter(e => (e.date||"").startsWith(m)).reduce((a,e) => a+e.total,0)})));
-  chart("countChart", keys.map(m => ({m,v:db.estimates.filter(e => (e.date||"").startsWith(m)).length})), true);
-
-  const ps = [...db.projects].sort((a,b) => (b.created||"").localeCompare(a.created||"")).slice(0,5);
-  $("recentProjects").innerHTML = ps.length ? `<div class="table-wrap"><table><tr><th>프로젝트</th><th>상태</th><th>마감일</th></tr>${ps.map(p => `<tr><td>${esc(p.name)}</td><td>${badge(p.status)}</td><td>${esc(p.due||"—")}</td></tr>`).join("")}</table></div>` : '<div class="empty">프로젝트가 없습니다.</div>';
-
-  const es = [...db.estimates].sort((a,b) => (b.date||"").localeCompare(a.date||"")).slice(0,5);
-  $("recentEstimates").innerHTML = es.length ? `<div class="table-wrap"><table><tr><th>견적</th><th>프로젝트</th><th>상태</th><th>금액</th></tr>${es.map(e => `<tr><td>${esc(e.title)}</td><td>${esc(pname(e.projectId))}</td><td>${badge(e.status)}</td><td>${money(e.total)}</td></tr>`).join("")}</table></div>` : '<div class="empty">견적이 없습니다.</div>';
-}
-
-function refreshDue() {
-  const existing = new Set(db.notifications.map(n => n.key).filter(Boolean));
-  const now = today();
-  let added = false;
-
-  function check(kind, item, date, title, message, ref) {
-    if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
-    const days = Math.round((new Date(date+"T12:00:00") - new Date(now+"T12:00:00")) / 86400000);
-    if (days < 0 || days > 3) return;
-    const key = kind+":"+item.id+":"+date;
-    if (existing.has(key)) return;
-    db.notifications.unshift({
-      id:id(), key, title:days===0 ? title+" 오늘" : title+" "+days+"일 전",
-      message, date:now, read:false, ...ref
-    });
-    existing.add(key);
-    added = true;
-  }
-
-  db.projects.forEach(p => {
-    if (!["완료","보류"].includes(p.status))
-      check("project",p,p.due,"프로젝트 마감",p.name+" · 마감일 "+p.due,{projectId:p.id});
-  });
-  db.estimates.forEach(e => {
-    if (!["승인","거절"].includes(e.status))
-      check("estimate",e,e.due,"견적 제출 예정",e.title+" · "+pname(e.projectId)+" · 예정일 "+e.due,{estimateId:e.id});
-  });
-
-  if (added) {
-    db.notifications = db.notifications.slice(0,300);
-    save();
-  }
-}
-
-function renderNotices() {
-  refreshDue();
-  const arr = [...db.notifications].sort((a,b) => (b.date||"").localeCompare(a.date||""));
-  $("noticeList").innerHTML = arr.length ? arr.map(n => `
-    <div class="notice ${n.read?"":"unread"}"><b>${n.read?"○":"🔵"} ${esc(n.title)}</b><p>${esc(n.message)}</p>
-      <div class="actions" style="margin-top:8px">
-        ${n.projectId ? `<button class="small gray" data-notice-p="${esc(n.projectId)}">프로젝트 보기</button>` : ""}
-        ${n.estimateId ? `<button class="small gray" data-notice-e="${esc(n.estimateId)}">견적 보기</button>` : ""}
-        ${!n.read ? `<button class="small gray" data-read="${esc(n.id)}">읽음</button>` : ""}
+      <div class="info">
+        로그인 계정
+        <p id="accountEmail"></p>
       </div>
-    </div>`).join("") : '<div class="empty">현재 알림이 없습니다. 마감일 또는 제출 예정일이 3일 이내인 항목이 여기에 표시됩니다.</div>';
 
-  document.querySelectorAll("[data-read]").forEach(b => b.onclick = () => {
-    const n = db.notifications.find(n => n.id === b.dataset.read);
-    if (n) n.read = true;
-    if (save()) { renderNotices(); unread(); }
-  });
-  document.querySelectorAll("[data-notice-p]").forEach(b => b.onclick = () => {
-    showPage("projects");
-    $("projectSearch").value = pname(b.dataset.noticeP);
-    renderProjects();
-  });
-  document.querySelectorAll("[data-notice-e]").forEach(b => b.onclick = () => openEstimate(b.dataset.noticeE));
-  unread();
-}
-function unread() {
-  const n = db.notifications.filter(x => !x.read).length;
-  $("navCount").innerHTML = n ? `<span class="dot">${n}</span>` : "";
-}
-$("refreshNotices").onclick = () => { refreshDue(); renderNotices(); toast("알림을 확인했어요."); };
-$("readAll").onclick = () => {
-  const previous = db.notifications.map(n => ({...n}));
-  db.notifications.forEach(n => n.read = true);
-  if (!save()) { db.notifications = previous; return; }
-  renderNotices();
-  unread();
-};
+      <p>
+        Supabase 로그인이 연결됐어.
+        다음 단계에서 프로젝트와 견적을 계정별로 저장하도록 연결할 수 있어.
+      </p>
 
-function download(name, blob) {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url; a.download = name;
-  document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
-function csvCell(value) {
-  let s = String(value ?? "");
-  if (/^[=+\-@]/.test(s)) s = "'"+s;
-  return '"'+s.replace(/"/g,'""')+'"';
-}
-function csv(name, headers, rows) {
-  download(name, new Blob(["\uFEFF"+[headers,...rows].map(r => r.map(csvCell).join(",")).join("\r\n")], {type:"text/csv;charset=utf-8"}));
-}
+      <button id="logoutButton" type="button">로그아웃</button>
+    </section>
 
-$("exportProjectsCsv").onclick = () => {
-  csv("ARCHI_MANAGER_projects.csv",
-    ["프로젝트명","상태","시작일","마감일","메모","견적합계"],
-    db.projects.map(p => [p.name,p.status,p.start,p.due,p.notes,db.estimates.filter(e => e.projectId===p.id).reduce((a,e) => a+e.total,0)])
-  );
-  toast("프로젝트 CSV를 저장했어요.");
-};
-$("exportEstimatesCsv").onclick = () => {
-  csv("ARCHI_MANAGER_estimates.csv",
-    ["견적명","프로젝트명","견적일","제출예정일","상태","공급가액","부가세","총액","받은 금액","미수금","수정횟수"],
-    db.estimates.map(e => [e.title,pname(e.projectId),e.date,e.due,e.status,e.subtotal,e.tax,e.total,e.paid,Math.max(0,e.total-e.paid),(e.history||[]).length])
-  );
-  toast("견적 CSV를 저장했어요.");
-};
-$("exportJson").onclick = () => download("ARCHI_MANAGER_backup.json", new Blob([JSON.stringify(db,null,2)], {type:"application/json"}));
+  </div>
 
-$("importJson").onchange = async ev => {
-  const file = ev.target.files[0];
-  if (!file) return;
-  try {
-    const parsed = JSON.parse(await file.text());
-    if (!parsed || !Array.isArray(parsed.projects) || !Array.isArray(parsed.estimates))
-      throw new Error("올바른 백업 파일이 아닙니다.");
+  <script>
+    const SUPABASE_URL =
+      "https://vvawaphnvzrxrztpahys.supabase.co";
 
-    const imported = normalizeDB(parsed);
-    if (imported.projects.some(p => !p.name.trim()))
-      throw new Error("프로젝트명이 비어 있습니다.");
-    if (imported.estimates.some(e => !e.title.trim() || !Array.isArray(e.items)))
-      throw new Error("견적 데이터가 올바르지 않습니다.");
+    const SUPABASE_PUBLISHABLE_KEY =
+      "sb_publishable_9_6_k0idZ146QAHz_M_qLQ_n1HMHe6r";
 
-    if (confirm("현재 데이터가 백업 파일의 데이터로 교체됩니다. 먼저 현재 데이터를 백업했는지 확인해 주세요. 계속할까요?")) {
-      const previous = db;
-      db = imported;
-      if (!save()) {
-        db = previous;
-        throw new Error("저장 공간 부족으로 데이터를 불러오지 못했습니다.");
+    const db = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY,
+      {
+        auth: {
+          persistSession: false,
+          autoRefreshToken: false,
+          detectSessionInUrl: true
+        }
       }
-      refresh();
-      toast("백업을 불러왔어요.");
+    );
+
+    let signupMode = false;
+
+    const loginScreen = document.getElementById("loginScreen");
+    const dashboard = document.getElementById("dashboard");
+    const message = document.getElementById("message");
+
+    const submitButton = document.getElementById("submitButton");
+    const switchButton = document.getElementById("switchButton");
+
+    function showMessage(text) {
+      message.textContent = text;
     }
-  } catch (error) {
-    alert("불러오기 실패: "+error.message);
-  } finally {
-    ev.target.value = "";
-  }
-};
 
-$("projectSearch").oninput = renderProjects;
-$("projectFilter").onchange = renderProjects;
-$("estimateSearch").oninput = renderEstimates;
-$("estimateFilter").onchange = renderEstimates;
-$("monthFilter").onchange = renderEstimates;
+    function changeMode() {
+      signupMode = !signupMode;
 
-function refresh() {
-  refreshDue();
-  renderProjects();
-  renderEstimates();
-  renderDashboard();
-  unread();
-}
+      document.getElementById("formTitle").textContent =
+        signupMode ? "회원가입" : "로그인";
 
-refresh();
-</script>
+      submitButton.textContent =
+        signupMode ? "회원가입" : "로그인";
+
+      switchButton.textContent =
+        signupMode ? "로그인으로 변경" : "회원가입으로 변경";
+
+      document.getElementById("password").autocomplete =
+        signupMode ? "new-password" : "current-password";
+
+      showMessage("");
+    }
+
+    switchButton.addEventListener("click", changeMode);
+
+    submitButton.addEventListener("click", async () => {
+      const email =
+        document.getElementById("email").value.trim();
+
+      const password =
+        document.getElementById("password").value;
+
+      if (!email || !password) {
+        showMessage("이메일과 비밀번호를 입력해 줘.");
+        return;
+      }
+
+      if (password.length < 6) {
+        showMessage("비밀번호는 6자 이상이어야 해.");
+        return;
+      }
+
+      submitButton.disabled = true;
+      showMessage("처리 중이야...");
+
+      try {
+        if (signupMode) {
+          const { data, error } = await db.auth.signUp({
+            email: email,
+            password: password
+          });
+
+          if (error) throw error;
+
+          if (data.session) {
+            showDashboard(data.user);
+          } else {
+            showMessage(
+              "가입 요청이 완료됐어. 이메일 인증이 필요하면 메일을 확인한 뒤 로그인해 줘."
+            );
+          }
+        } else {
+          const { data, error } =
+            await db.auth.signInWithPassword({
+              email: email,
+              password: password
+            });
+
+          if (error) throw error;
+
+          showDashboard(data.user);
+        }
+      } catch (error) {
+        showMessage("오류: " + error.message);
+      } finally {
+        submitButton.disabled = false;
+      }
+    });
+
+    function showDashboard(user) {
+      loginScreen.style.display = "none";
+      dashboard.style.display = "block";
+
+      document.getElementById("accountEmail").textContent =
+        user.email || "이메일 정보 없음";
+    }
+
+    document.getElementById("logoutButton")
+      .addEventListener("click", async () => {
+        await db.auth.signOut({ scope: "local" });
+
+        dashboard.style.display = "none";
+        loginScreen.style.display = "block";
+
+        document.getElementById("password").value = "";
+
+        signupMode = false;
+
+        document.getElementById("formTitle").textContent = "로그인";
+        submitButton.textContent = "로그인";
+        switchButton.textContent = "회원가입으로 변경";
+
+        showMessage("로그아웃했어. 다시 로그인해 줘.");
+      });
+  </script>
 </body>
 </html>
+```
