@@ -1,288 +1,157 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ARCHI MANAGER</title>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-family: Arial, sans-serif;
-      background: #f1f4f9;
-      color: #172033;
-    }
-
-    .container {
-      width: 90%;
-      max-width: 420px;
-      padding: 30px;
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 8px 30px #00000012;
-    }
-
-    h1 {
-      margin-bottom: 5px;
-      font-size: 25px;
-    }
-
-    .subtitle {
-      color: #777;
-      margin-bottom: 25px;
-    }
-
-    label {
-      display: block;
-      margin: 15px 0 6px;
-      font-size: 14px;
-    }
-
-    input {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #d9dfeb;
-      border-radius: 8px;
-      font-size: 15px;
-    }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 12px;
-      border: 0;
-      border-radius: 8px;
-      background: #315efb;
-      color: white;
-      font-size: 15px;
-      cursor: pointer;
-    }
-
-    button.secondary {
-      background: #e9edf5;
-      color: #172033;
-    }
-
-    #message {
-      margin-top: 15px;
-      font-size: 14px;
-      line-height: 1.5;
-      overflow-wrap: anywhere;
-    }
-
-    #dashboard {
-      display: none;
-    }
-
-    .info {
-      padding: 15px;
-      margin: 20px 0;
-      border-radius: 8px;
-      background: #f1f4f9;
-      overflow-wrap: anywhere;
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ARCHI MANAGER</title>
+<style>
+:root{--bg:#f4f6fa;--ink:#202a3b;--muted:#788397;--line:#e5e9f0;--blue:#3458db}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,"Noto Sans KR",sans-serif}
+button,input,select,textarea{font:inherit}
+button{border:0;border-radius:9px;padding:10px 14px;cursor:pointer;background:var(--blue);color:#fff}
+button.secondary{background:#e9edf6;color:#34415c}button.danger{background:#fff0f0;color:#bd3030}
+input,select,textarea{display:block;width:100%;padding:11px;border:1px solid #cbd2df;border-radius:8px;background:#fff!important;color:#202a3b!important;-webkit-text-fill-color:#202a3b!important;caret-color:#202a3b!important;opacity:1!important}
+input::placeholder,textarea::placeholder{color:#788397!important;-webkit-text-fill-color:#788397!important;opacity:1!important}
+input:-webkit-autofill{-webkit-text-fill-color:#202a3b!important;box-shadow:0 0 0 1000px #fff inset!important}
+textarea{min-height:80px;resize:vertical}label{display:block;font-size:13px;font-weight:700;margin-bottom:6px}.field{margin-bottom:14px}
+h1,h2,h3,p{margin-top:0}h2{font-size:21px}.hidden{display:none!important}.muted,small{color:var(--muted)}
+.auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}.auth-card{width:100%;max-width:420px;background:#fff;padding:30px;border-radius:18px;box-shadow:0 12px 45px #1e2b4812}
+.brand{font-size:25px;font-weight:800;letter-spacing:-1px;margin-bottom:5px}.subtitle{font-size:12px;letter-spacing:2px;color:var(--muted);margin-bottom:26px}
+.auth-tabs{display:flex;gap:8px;margin-bottom:20px;position:relative;z-index:5}.auth-tabs button{flex:1;min-height:44px;position:relative;z-index:6;pointer-events:auto;touch-action:manipulation;background:#edf0f6!important;color:#536078!important}.auth-tabs button.inactive{background:#edf0f6!important;color:#536078!important}.auth-tabs button.selected{background:#3458db!important;color:#fff!important}.auth-tabs button:focus-visible{outline:3px solid #8ca5ff;outline-offset:2px}
+#app{display:flex;min-height:100vh}.sidebar{width:220px;flex-shrink:0;background:#19243a;color:white;padding:22px 14px}.sidebar .brand{font-size:20px}.sidebar .subtitle{color:#aab5c9}
+.nav-btn{display:block;width:100%;text-align:left;background:transparent;color:#c8d0df;margin:5px 0;padding:12px}.nav-btn.active,.nav-btn:hover{background:#2c3c5c;color:white}
+.sidebar-bottom{margin-top:25px;padding:8px}.main{min-width:0;flex:1;padding:26px;overflow:hidden}.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:22px}.topbar h1{font-size:25px;margin:0}
+.page{display:none}.page.active{display:block}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}
+.card{background:white;border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:15px;min-width:0}.metric{font-size:25px;font-weight:800;margin:8px 0}.metric-label{font-size:13px;color:var(--muted)}
+.section-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:15px}.section-head h2{margin:0}.actions{display:flex;gap:7px;flex-wrap:wrap}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:11px 9px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}th{color:var(--muted);background:#fafbfe}.table-wrap{overflow-x:auto}.empty{text-align:center;color:var(--muted);padding:25px}
+.status{display:inline-block;border-radius:20px;padding:5px 9px;background:#edf1f9;color:#4c5d80;font-size:11px;white-space:nowrap}.status.done{background:#e4f7ed;color:#16824c}.status.hold{background:#fff0f0;color:#bf4141}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.form-grid .full{grid-column:1/-1}
+.modal{position:fixed;inset:0;background:#101a2a99;display:flex;align-items:center;justify-content:center;padding:15px;z-index:20}.modal-box{background:white;border-radius:16px;padding:23px;width:100%;max-width:720px;max-height:90vh;overflow:auto}
+.modal-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.modal-title h2{margin:0}
+.item-row{display:grid;grid-template-columns:minmax(100px,2fr) 75px 120px 42px;gap:8px;margin-bottom:8px}.item-row input{min-width:0}
+.summary-line{display:flex;justify-content:space-between;padding:7px 0}.bar-chart{display:flex;align-items:flex-end;gap:10px;height:180px;padding:10px 0 0}
+.bar-col{height:100%;flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:7px;min-width:0}.bar{background:#5675e6;width:70%;max-width:45px;border-radius:5px 5px 0 0;min-height:2px}.bar-label,.bar-value{font-size:11px;color:var(--muted)}
+.notice{background:#edf3ff;border-radius:10px;padding:12px;font-size:13px;color:#40527a;margin-bottom:15px}.notice-list{display:grid;gap:10px}.notice-item{padding:14px;border:1px solid var(--line);border-radius:10px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#19243a;color:white;padding:12px 18px;border-radius:10px;z-index:50;max-width:90%;box-shadow:0 5px 20px #0002}
+@media(max-width:900px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.sidebar{width:185px}.main{padding:18px}}
+@media(max-width:650px){#app{display:block}.sidebar{width:100%;padding:13px}.sidebar .subtitle{display:none}.nav{display:flex;overflow-x:auto;gap:4px;margin-top:10px}.nav-btn{width:auto;white-space:nowrap;margin:0;padding:10px}.sidebar-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:8px}.main{padding:14px}.grid{gap:8px}.card{padding:13px}.metric{font-size:21px}.topbar h1{font-size:21px}.form-grid{grid-template-columns:1fr}.form-grid .full{grid-column:auto}.item-row{grid-template-columns:minmax(70px,1fr) 55px 82px 32px;gap:5px}.item-row input{padding:8px;font-size:12px}.modal-box{padding:16px}}
+</style>
 </head>
-
 <body>
-  <div class="container">
-
-    <section id="loginScreen">
-      <h1>ARCHI MANAGER</h1>
-      <div class="subtitle">ESTIMATE WORKSPACE</div>
-
-      <h2 id="formTitle">로그인</h2>
-
-      <label for="email">이메일</label>
-      <input
-        id="email"
-        type="email"
-        autocomplete="username"
-        placeholder="이메일 입력"
-      >
-
-      <label for="password">비밀번호</label>
-      <input
-        id="password"
-        type="password"
-        autocomplete="current-password"
-        placeholder="비밀번호 입력"
-      >
-
-      <button id="submitButton" type="button">로그인</button>
-
-      <button
-        id="switchButton"
-        class="secondary"
-        type="button"
-      >회원가입으로 변경</button>
-
-      <div id="message" role="status"></div>
-    </section>
-
-    <section id="dashboard">
-      <h1>ARCHI MANAGER</h1>
-      <div class="subtitle">ESTIMATE WORKSPACE</div>
-
-      <h2>로그인 완료</h2>
-
-      <div class="info">
-        로그인 계정
-        <p id="accountEmail"></p>
-      </div>
-
-      <p>
-        Supabase 로그인이 연결됐어.
-        다음 단계에서 프로젝트와 견적을 계정별로 저장하도록 연결할 수 있어.
-      </p>
-
-      <button id="logoutButton" type="button">로그아웃</button>
-    </section>
-
-  </div>
-
-  <script>
-    const SUPABASE_URL =
-      "https://vvawaphnvzrxrztpahys.supabase.co";
-
-    const SUPABASE_PUBLISHABLE_KEY =
-      "sb_publishable_9_6_k0idZ146QAHz_M_qLQ_n1HMHe6r";
-
-    const db = window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_PUBLISHABLE_KEY,
-      {
-        auth: {
-          persistSession: false,
-          autoRefreshToken: false,
-          detectSessionInUrl: true
-        }
-      }
-    );
-
-    let signupMode = false;
-
-    const loginScreen = document.getElementById("loginScreen");
-    const dashboard = document.getElementById("dashboard");
-    const message = document.getElementById("message");
-
-    const submitButton = document.getElementById("submitButton");
-    const switchButton = document.getElementById("switchButton");
-
-    function showMessage(text) {
-      message.textContent = text;
-    }
-
-    function changeMode() {
-      signupMode = !signupMode;
-
-      document.getElementById("formTitle").textContent =
-        signupMode ? "회원가입" : "로그인";
-
-      submitButton.textContent =
-        signupMode ? "회원가입" : "로그인";
-
-      switchButton.textContent =
-        signupMode ? "로그인으로 변경" : "회원가입으로 변경";
-
-      document.getElementById("password").autocomplete =
-        signupMode ? "new-password" : "current-password";
-
-      showMessage("");
-    }
-
-    switchButton.addEventListener("click", changeMode);
-
-    submitButton.addEventListener("click", async () => {
-      const email =
-        document.getElementById("email").value.trim();
-
-      const password =
-        document.getElementById("password").value;
-
-      if (!email || !password) {
-        showMessage("이메일과 비밀번호를 입력해 줘.");
-        return;
-      }
-
-      if (password.length < 6) {
-        showMessage("비밀번호는 6자 이상이어야 해.");
-        return;
-      }
-
-      submitButton.disabled = true;
-      showMessage("처리 중이야...");
-
-      try {
-        if (signupMode) {
-          const { data, error } = await db.auth.signUp({
-            email: email,
-            password: password
-          });
-
-          if (error) throw error;
-
-          if (data.session) {
-            showDashboard(data.user);
-          } else {
-            showMessage(
-              "가입 요청이 완료됐어. 이메일 인증이 필요하면 메일을 확인한 뒤 로그인해 줘."
-            );
-          }
-        } else {
-          const { data, error } =
-            await db.auth.signInWithPassword({
-              email: email,
-              password: password
-            });
-
-          if (error) throw error;
-
-          showDashboard(data.user);
-        }
-      } catch (error) {
-        showMessage("오류: " + error.message);
-      } finally {
-        submitButton.disabled = false;
-      }
-    });
-
-    function showDashboard(user) {
-      loginScreen.style.display = "none";
-      dashboard.style.display = "block";
-
-      document.getElementById("accountEmail").textContent =
-        user.email || "이메일 정보 없음";
-    }
-
-    document.getElementById("logoutButton")
-      .addEventListener("click", async () => {
-        await db.auth.signOut({ scope: "local" });
-
-        dashboard.style.display = "none";
-        loginScreen.style.display = "block";
-
-        document.getElementById("password").value = "";
-
-        signupMode = false;
-
-        document.getElementById("formTitle").textContent = "로그인";
-        submitButton.textContent = "로그인";
-        switchButton.textContent = "회원가입으로 변경";
-
-        showMessage("로그아웃했어. 다시 로그인해 줘.");
-      });
-  </script>
-</body>
-</html>
-```
+<script>
+// 로그인/회원가입 탭은 Supabase 연결과 무관하게 즉시 작동합니다.
+function switchAuthTab(mode){
+  const signup = mode === 'signup';
+  const loginTab = document.getElementById('loginTab');
+  const signupTab = document.getElementById('signupTab');
+  const submit = document.getElementById('authSubmit');
+  const password = document.getElementById('authPassword');
+  const message = document.getElementById('authMessage');
+  if (!loginTab || !signupTab || !submit) return;
+  loginTab.classList.toggle('selected', !signup);
+  loginTab.classList.toggle('inactive', signup);
+  signupTab.classList.toggle('selected', signup);
+  signupTab.classList.toggle('inactive', !signup);
+  loginTab.setAttribute('aria-pressed', String(!signup));
+  signupTab.setAttribute('aria-pressed', String(signup));
+  loginTab.style.cssText += ';background:' + (signup ? '#edf0f6' : '#3458db') + ' !important;color:' + (signup ? '#536078' : '#fff') + ' !important;';
+  signupTab.style.cssText += ';background:' + (signup ? '#3458db' : '#edf0f6') + ' !important;color:' + (signup ? '#fff' : '#536078') + ' !important;';
+  submit.textContent = signup ? '회원가입' : '로그인';
+  if (password) password.autocomplete = signup ? 'new-password' : 'current-password';
+  if (message) message.textContent = '';
+  window.__archiAuthMode = mode;
+}
+document.addEventListener('DOMContentLoaded', function(){
+  const l=document.getElementById('loginTab'), s=document.getElementById('signupTab');
+  if(l) l.addEventListener('click', function(e){e.preventDefault();e.stopPropagation();switchAuthTab('login')}, true);
+  if(s) s.addEventListener('click', function(e){e.preventDefault();e.stopPropagation();switchAuthTab('signup')}, true);
+  switchAuthTab('login');
+});
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<section id="authScreen" class="auth-wrap"><div class="auth-card">
+<div class="brand">ARCHI MANAGER</div><div class="subtitle">ESTIMATE WORKSPACE</div>
+<div class="auth-tabs" id="authTabs"><button type="button" id="loginTab" class="selected" aria-pressed="true" onclick="switchAuthTab('login')">로그인</button><button type="button" id="signupTab" class="inactive" aria-pressed="false" onclick="switchAuthTab('signup')">회원가입</button></div>
+<form id="authForm"><div class="field"><label for="authEmail">이메일</label><input id="authEmail" type="email" autocomplete="email" required placeholder="이메일 주소"></div>
+<div class="field"><label for="authPassword">비밀번호</label><input id="authPassword" type="password" minlength="6" required autocomplete="current-password" placeholder="비밀번호 (6자 이상)"></div>
+<button id="authSubmit" type="submit" style="width:100%">로그인</button></form>
+<p id="authMessage" class="muted" style="font-size:13px;margin:15px 0 0"></p><p class="muted" style="font-size:12px;margin:18px 0 0">계정별로 프로젝트와 견적이 분리됩니다.</p>
+</div></section>
+<div id="app" class="hidden"><aside class="sidebar"><div class="brand">ARCHI MANAGER</div><div class="subtitle">ESTIMATE WORKSPACE</div>
+<div class="nav"><button class="nav-btn active" data-page="dashboard">대시보드</button><button class="nav-btn" data-page="projects">프로젝트</button><button class="nav-btn" data-page="estimates">견적 관리</button><button class="nav-btn" data-page="notifications">알림</button><button class="nav-btn" data-page="backup">백업·CSV</button></div>
+<div class="sidebar-bottom"><small id="userEmail" style="color:#c8d0df;overflow-wrap:anywhere"></small> <button class="secondary" onclick="logout()">로그아웃</button></div></aside>
+<main class="main"><div class="topbar"><h1 id="pageTitle">대시보드</h1><span class="muted" id="todayLabel"></span></div>
+<section id="page-dashboard" class="page active"><div class="grid">
+<div class="card"><div class="metric-label">전체 프로젝트</div><div id="metricProjects" class="metric">0</div></div><div class="card"><div class="metric-label">전체 견적</div><div id="metricEstimates" class="metric">0</div></div><div class="card"><div class="metric-label">견적 총액</div><div id="metricTotal" class="metric">₩0</div></div><div class="card"><div class="metric-label">확인할 알림</div><div id="metricAlerts" class="metric">0</div></div></div>
+<div class="card"><div class="section-head"><h2>최근 6개월 견적 추이</h2></div><div id="monthlyChart" class="bar-chart"></div></div>
+<div class="card"><div class="section-head"><h2>최근 프로젝트</h2><button onclick="navigate('projects')">전체 보기</button></div><div id="recentProjects" class="table-wrap"></div></div>
+<div class="card"><div class="section-head"><h2>최근 견적</h2><button onclick="navigate('estimates')">전체 보기</button></div><div id="recentEstimates" class="table-wrap"></div></div></section>
+<section id="page-projects" class="page"><div class="card"><div class="section-head"><h2>프로젝트 목록</h2><button onclick="openProjectModal()">+ 프로젝트 추가</button></div><div id="projectsTable" class="table-wrap"></div></div></section>
+<section id="page-estimates" class="page"><div class="card"><div class="section-head"><h2>견적 목록</h2><button onclick="openEstimateModal()">+ 견적 추가</button></div><div id="estimatesTable" class="table-wrap"></div></div></section>
+<section id="page-notifications" class="page"><div class="card"><div class="section-head"><h2>알림</h2><button class="secondary" onclick="markAllRead()">알림 새로고침</button></div><p class="muted">마감일이 3일 이내인 프로젝트와 견적을 표시합니다. 페이지가 닫혀 있을 때 푸시 알림은 보내지 않습니다.</p><div id="notificationsList" class="notice-list"></div></div></section>
+<section id="page-backup" class="page"><div class="card"><h2>데이터 백업</h2><p class="muted">현재 계정의 프로젝트와 견적을 파일로 저장합니다.</p><div class="actions"><button onclick="exportJSON()">JSON 전체 백업</button><button class="secondary" onclick="exportCSV('projects')">프로젝트 CSV</button><button class="secondary" onclick="exportCSV('estimates')">견적 CSV</button></div></div>
+<div class="card"><h2>JSON 백업 복원</h2><div class="notice">복원 데이터는 새 레코드로 추가됩니다.</div><div class="field"><label for="backupFile">백업 파일</label><input type="file" id="backupFile" accept=".json,application/json"></div><button onclick="importJSON()">백업 파일 복원</button></div>
+<div class="card"><h2>데이터 보관 안내</h2><p class="muted">데이터는 Supabase에 저장됩니다. 계정별 접근은 RLS 정책으로 제한해야 합니다. 중요한 데이터는 정기적으로 백업하세요.</p></div></section>
+</main></div>
+<div id="modal" class="modal hidden"><div class="modal-box"><div class="modal-title"><h2 id="modalTitle">입력</h2><button class="secondary" onclick="closeModal()">닫기</button></div><div id="modalBody"></div></div></div><div id="toast" class="toast hidden"></div>
+<script>/* Auth tabs are wired once in the main application script below. */</script>
+<script>
+"use strict";
+const SUPABASE_URL="https://vvawaphnvzrxrztpahys.supabase.co";
+const SUPABASE_KEY="sb_publishable_9_6_k0idZ146QAHz_M_qLQ_n1HMHe6r";
+let db=null;
+try {
+  if (!window.supabase || typeof window.supabase.createClient !== "function") throw new Error("Supabase 라이브러리를 불러오지 못했습니다. 인터넷 연결을 확인하고 새로고침하세요.");
+  db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+} catch (initError) {
+  console.error("Supabase 초기화 실패:", initError);
+  window.addEventListener("DOMContentLoaded",()=>{const m=document.getElementById("authMessage");if(m)m.textContent="연결 초기화 오류: "+initError.message;});
+}
+let currentUser=null,projects=[],estimates=[],authMode="login",toastTimer;
+const $=id=>document.getElementById(id), money=v=>new Intl.NumberFormat("ko-KR",{style:"currency",currency:"KRW",maximumFractionDigits:0}).format(Number(v)||0), today=()=>new Date().toLocaleDateString("sv-SE");
+const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const dateText=v=>v?esc(v):"-";
+function toast(msg){$("toast").textContent=msg;$("toast").classList.remove("hidden");clearTimeout(toastTimer);toastTimer=setTimeout(()=>$("toast").classList.add("hidden"),3000)}
+window.setAuthMode=function(mode){authMode=mode;switchAuthTab(mode);};
+authMode=window.__archiAuthMode||"login";
+$("authForm").addEventListener("submit",async ev=>{ev.preventDefault();const button=$("authSubmit");button.disabled=true;$("authMessage").textContent="처리 중입니다...";try{if(!db)throw Error("Supabase 연결이 준비되지 않았습니다. 인터넷 연결을 확인하고 페이지를 새로고침하세요.");const email=$("authEmail").value.trim(),password=$("authPassword").value;authMode=window.__archiAuthMode||authMode;if(authMode==="signup"){const {data,error}=await db.auth.signUp({email,password});if(error)throw error;if(data.session)await enterApp(data.session.user);else $("authMessage").textContent="가입 요청이 완료되었습니다. 이메일 인증 후 로그인하세요."}else{const {data,error}=await db.auth.signInWithPassword({email,password});if(error)throw error;if(!data.session)throw Error("로그인 세션을 만들지 못했습니다.");await enterApp(data.session.user)}}catch(e){$("authMessage").textContent=e.message||"로그인에 실패했습니다."}finally{button.disabled=false}});
+// 저장된 로그인 세션을 복구합니다. 로그인 화면을 새로고침해도 세션이 유지됩니다.
+window.addEventListener("DOMContentLoaded", async () => {
+  if (!db) return;
+  try {
+    const { data, error } = await db.auth.getSession();
+    if (error) throw error;
+    if (data.session && data.session.user) await enterApp(data.session.user);
+  } catch (e) {
+    console.error("로그인 세션 복구 실패:", e);
+    $("authMessage").textContent = "로그인 상태를 확인하지 못했습니다. 다시 로그인해 주세요.";
+  }
+});
+async function enterApp(user){currentUser=user;$("authScreen").classList.add("hidden");$("app").classList.remove("hidden");$("userEmail").textContent=user.email||"";$("todayLabel").textContent=new Date().toLocaleDateString("ko-KR");await loadAll()}
+async function logout(){try{await db.auth.signOut({scope:"local"})}catch(e){}currentUser=null;projects=[];estimates=[];$("app").classList.add("hidden");$("authScreen").classList.remove("hidden");$("authPassword").value="";$("authMessage").textContent="로그아웃되었습니다."}
+async function loadAll(){try{if(!currentUser)throw Error("로그인이 필요합니다.");const uid=currentUser.id;const [pr,er]=await Promise.all([db.from("projects").select("*").eq("user_id",uid).order("created_at",{ascending:false}),db.from("estimates").select("*").eq("user_id",uid).order("created_at",{ascending:false})]);if(pr.error)throw pr.error;if(er.error)throw er.error;projects=pr.data||[];estimates=er.data||[];if(estimates.length){const {data,error}=await db.from("estimate_items").select("*").eq("user_id",uid).in("estimate_id",estimates.map(e=>e.id));if(error)throw error;const map={};(data||[]).forEach(i=>(map[i.estimate_id]||=[]).push({id:i.id,desc:i.description||"",qty:Number(i.qty)||0,price:Number(i.unit_price)||0}));estimates=estimates.map(e=>({...e,items:map[e.id]||[]}))}renderAll()}catch(e){toast("데이터를 불러오지 못했습니다: "+e.message);console.error(e)}}
+function navigate(page){document.querySelectorAll(".page").forEach(el=>el.classList.remove("active"));$("page-"+page).classList.add("active");document.querySelectorAll(".nav-btn").forEach(b=>b.classList.toggle("active",b.dataset.page===page));$("pageTitle").textContent=({dashboard:"대시보드",projects:"프로젝트",estimates:"견적 관리",notifications:"알림",backup:"백업·CSV"})[page];renderAll()}
+document.querySelectorAll(".nav-btn").forEach(b=>b.addEventListener("click",()=>navigate(b.dataset.page)));
+function statusClass(s){return ["승인","완료"].includes(s)?"done":["거절","보류"].includes(s)?"hold":""}function projectName(id){return projects.find(p=>p.id===id)?.name||"연결된 프로젝트 없음"}
+function tableHTML(head,rows){return rows.length?`<table><thead><tr>${head.map(h=>`<th>${h}</th>`).join("")}</thead><tbody>${rows.join("")}</tbody></table>`:'<div class="empty">등록된 데이터가 없습니다.</div>'}
+function renderAll(){renderDashboard();renderProjects();renderEstimates();renderNotifications()}
+function renderDashboard(){$("metricProjects").textContent=projects.length;$("metricEstimates").textContent=estimates.length;$("metricTotal").textContent=money(estimates.reduce((s,e)=>s+(Number(e.total)||0),0));$("metricAlerts").textContent=getNotifications().length;const months=[],now=new Date();for(let i=5;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1),key=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;months.push({label:`${d.getMonth()+1}월`,sum:estimates.filter(e=>String(e.date||"").slice(0,7)===key).reduce((s,e)=>s+(Number(e.total)||0),0)})}const max=Math.max(...months.map(m=>m.sum),1);$("monthlyChart").innerHTML=months.map(m=>`<div class="bar-col"><div class="bar-value">${m.sum?esc((m.sum/10000).toFixed(0)+"만"):"0"}</div><div class="bar" style="height:${Math.max(m.sum/max*100,1)}%"></div><div class="bar-label">${m.label}</div></div>`).join("");$("recentProjects").innerHTML=tableHTML(["프로젝트","상태","마감일"],projects.slice(0,5).map(p=>`<tr><td>${esc(p.name)}</td><td><span class="status ${statusClass(p.status)}">${esc(p.status||"문의")}</span></td><td>${dateText(p.due_date)}</td></tr>`));$("recentEstimates").innerHTML=tableHTML(["견적서","프로젝트","금액","상태"],estimates.slice(0,5).map(e=>`<tr><td>${esc(e.title)}</td><td>${esc(projectName(e.project_id))}</td><td>${money(e.total)}</td><td><span class="status ${statusClass(e.status)}">${esc(e.status||"작성 중")}</span></td></tr>`))}
+function renderProjects(){$("projectsTable").innerHTML=tableHTML(["프로젝트","상태","시작일","마감일","작업"],projects.map(p=>`<tr><td><strong>${esc(p.name)}</strong><br><small>${esc(p.notes||"")}</small></td><td><span class="status ${statusClass(p.status)}">${esc(p.status||"문의")}</span></td><td>${dateText(p.start_date)}</td><td>${dateText(p.due_date)}</td><td><div class="actions"><button class="secondary" onclick="openProjectModal('${p.id}')">수정</button><button class="danger" onclick="deleteProject('${p.id}')">삭제</button></div></td></tr>`))}
+function renderEstimates(){$("estimatesTable").innerHTML=tableHTML(["견적서","프로젝트","작성일","합계","상태","작업"],estimates.map(e=>`<tr><td><strong>${esc(e.title)}</strong></td><td>${esc(projectName(e.project_id))}</td><td>${dateText(e.date)}</td><td>${money(e.total)}</td><td><span class="status ${statusClass(e.status)}">${esc(e.status||"작성 중")}</span></td><td><div class="actions"><button class="secondary" onclick="openEstimateModal('${e.id}')">수정</button><button class="danger" onclick="deleteEstimate('${e.id}')">삭제</button></div></td></tr>`))}
+function getNotifications(){const out=[],now=new Date(today()+"T00:00:00");function check(r,label,date){if(!date)return;const days=Math.round((new Date(date+"T00:00:00")-now)/86400000);if(days>=0&&days<=3)out.push({date,title:label+": "+(r.name||r.title),message:days===0?"오늘 마감입니다.":days+"일 후 마감입니다."})}projects.forEach(p=>check(p,"프로젝트 마감",p.due_date));estimates.forEach(e=>check(e,"견적 마감",e.due_date));return out.sort((a,b)=>a.date.localeCompare(b.date))}
+function renderNotifications(){const list=getNotifications();$("notificationsList").innerHTML=list.length?list.map(n=>`<div class="notice-item"><strong>${esc(n.title)}</strong><p style="margin:8px 0">${esc(n.message)}</p><small>마감일: ${dateText(n.date)}</small></div>`).join(""):'<div class="empty">현재 마감 임박 알림이 없습니다.</div>'}function markAllRead(){renderNotifications();toast("알림을 새로고침했습니다.")}
+function closeModal(){$("modal").classList.add("hidden");$("modalBody").innerHTML=""}$("modal").addEventListener("click",e=>{if(e.target===$("modal"))closeModal()});
+function openProjectModal(id=null){const p=id?projects.find(x=>x.id===id):null;$("modalTitle").textContent=p?"프로젝트 수정":"프로젝트 추가";$("modalBody").innerHTML=`<form id="projectForm"><div class="form-grid"><div class="field full"><label>프로젝트명 *</label><input id="pName" required maxlength="150" value="${esc(p?.name||"")}"></div><div class="field"><label>상태</label><select id="pStatus">${["문의","견적 작성 중","견적 제출","승인","완료","보류"].map(s=>`<option ${p?.status===s?"selected":""}>${s}</option>`).join("")}</select></div><div class="field"><label>시작일</label><input id="pStart" type="date" value="${esc(p?.start_date||"")}"></div><div class="field"><label>마감일</label><input id="pDue" type="date" value="${esc(p?.due_date||"")}"></div><div class="field full"><label>메모</label><textarea id="pNotes" maxlength="3000">${esc(p?.notes||"")}</textarea></div></div><div class="actions"><button type="submit">저장</button><button type="button" class="secondary" onclick="closeModal()">취소</button></div></form>`;$("modal").classList.remove("hidden");$("projectForm").addEventListener("submit",async ev=>{ev.preventDefault();const b=ev.submitter;b.disabled=true;try{const uid=currentUser.id,rec={user_id:uid,name:$("pName").value.trim(),status:$("pStatus").value,start_date:$("pStart").value||null,due_date:$("pDue").value||null,notes:$("pNotes").value.trim()},r=p?await db.from("projects").update(rec).eq("id",p.id).eq("user_id",uid):await db.from("projects").insert(rec);if(r.error)throw r.error;closeModal();await loadAll();toast("프로젝트를 저장했습니다.")}catch(e){toast("저장 실패: "+e.message);b.disabled=false}})}
+async function deleteProject(id){if(!confirm("프로젝트를 삭제할까요?"))return;try{const {error}=await db.from("projects").delete().eq("id",id).eq("user_id",currentUser.id);if(error)throw error;await loadAll();toast("프로젝트를 삭제했습니다.")}catch(e){toast("삭제 실패: "+e.message)}}
+function openEstimateModal(id=null){const e=id?estimates.find(x=>x.id===id):null;$("modalTitle").textContent=e?"견적 수정":"견적 추가";const opts=projects.map(p=>`<option value="${p.id}" ${e?.project_id===p.id?"selected":""}>${esc(p.name)}</option>`).join("");$("modalBody").innerHTML=`<form id="estimateForm"><div class="form-grid"><div class="field full"><label>견적서 제목 *</label><input id="eTitle" required maxlength="150" value="${esc(e?.title||"")}"></div><div class="field"><label>연결 프로젝트</label><select id="eProject"><option value="">선택 안 함</option>${opts}</select></div><div class="field"><label>상태</label><select id="eStatus">${["작성 중","제출","승인","거절"].map(s=>`<option ${e?.status===s?"selected":""}>${s}</option>`).join("")}</select></div><div class="field"><label>작성일</label><input type="date" id="eDate" value="${esc(e?.date||today())}"></div><div class="field"><label>마감일</label><input type="date" id="eDue" value="${esc(e?.due_date||"")}"></div></div><div class="section-head"><h3>견적 항목</h3><button type="button" class="secondary" onclick="addEstimateItem()">+ 항목 추가</button></div><div id="itemRows"></div><div class="field" style="max-width:200px;margin-top:15px"><label>부가세 (%)</label><input id="eTaxRate" type="number" min="0" max="100" step=".1" value="${Number(e?.tax_rate??10)}"></div><div class="card" style="background:#f8f9fd"><div class="summary-line"><span>공급가액</span><strong id="eSubtotal">₩0</strong></div><div class="summary-line"><span>부가세</span><strong id="eTax">₩0</strong></div><div class="summary-line"><span>총 합계</span><strong id="eTotal">₩0</strong></div></div><div class="field"><label>메모</label><textarea id="eNotes" maxlength="3000">${esc(e?.notes||"")}</textarea></div><div class="actions"><button type="submit">저장</button><button type="button" class="secondary" onclick="closeModal()">취소</button></div></form>`;$("modal").classList.remove("hidden");(e?.items?.length?e.items:[{desc:"",qty:1,price:0}]).forEach(addEstimateItem);$("eTaxRate").addEventListener("input",calculateEstimate);$("estimateForm").addEventListener("input",ev=>{if(ev.target.closest("#itemRows"))calculateEstimate()});calculateEstimate();$("estimateForm").addEventListener("submit",async ev=>{ev.preventDefault();const b=ev.submitter;b.disabled=true;try{const uid=currentUser.id,items=[...document.querySelectorAll(".item-row")].map(r=>({description:r.querySelector(".item-desc").value.trim(),qty:Number(r.querySelector(".item-qty").value),unit_price:Number(r.querySelector(".item-price").value)}));if(!items.length||items.some(i=>!i.description))throw Error("견적 항목 이름을 입력하세요.");if(items.some(i=>!Number.isFinite(i.qty)||i.qty<=0||!Number.isFinite(i.unit_price)||i.unit_price<0))throw Error("수량과 단가를 확인하세요.");const subtotal=items.reduce((s,i)=>s+i.qty*i.unit_price,0),rate=Number($("eTaxRate").value);if(!Number.isFinite(rate)||rate<0||rate>100)throw Error("부가세율을 확인하세요.");const tax=Math.round(subtotal*rate/100),rec={user_id:uid,title:$("eTitle").value.trim(),project_id:$("eProject").value||null,date:$("eDate").value||today(),due_date:$("eDue").value||null,status:$("eStatus").value,tax_rate:rate,subtotal,tax,total:subtotal+tax,notes:$("eNotes").value.trim()};let eid=id;if(e){let r=await db.from("estimates").update(rec).eq("id",id).eq("user_id",uid);if(r.error)throw r.error;r=await db.from("estimate_items").delete().eq("estimate_id",id).eq("user_id",uid);if(r.error)throw r.error}else{const {data,error}=await db.from("estimates").insert(rec).select("id").single();if(error)throw error;eid=data.id}const {error}=await db.from("estimate_items").insert(items.map(i=>({...i,user_id:uid,estimate_id:eid})));if(error)throw error;closeModal();await loadAll();toast("견적을 저장했습니다.")}catch(err){toast("저장 실패: "+err.message);b.disabled=false}})}
+function addEstimateItem(item={desc:"",qty:1,price:0}){const row=document.createElement("div");row.className="item-row";row.innerHTML=`<input class="item-desc" aria-label="항목명" placeholder="항목명" maxlength="200" value="${esc(item.desc||"")}"><input class="item-qty" aria-label="수량" type="number" min=".01" step="any" value="${Number(item.qty??1)}"><input class="item-price" aria-label="단가" type="number" min="0" step="1" value="${Number(item.price??0)}"><button type="button" class="danger" aria-label="삭제">×</button>`;row.querySelector("button").addEventListener("click",()=>{row.remove();calculateEstimate()});$("itemRows").appendChild(row);calculateEstimate()}
+function calculateEstimate(){if(!$("itemRows"))return;let sub=0;document.querySelectorAll(".item-row").forEach(r=>sub+=(Number(r.querySelector(".item-qty").value)||0)*(Number(r.querySelector(".item-price").value)||0));const tax=Math.round(sub*(Number($("eTaxRate").value)||0)/100);$("eSubtotal").textContent=money(sub);$("eTax").textContent=money(tax);$("eTotal").textContent=money(sub+tax)}
+async function deleteEstimate(id){if(!confirm("이 견적서와 항목을 삭제할까요?"))return;try{const uid=currentUser.id;let r=await db.from("estimate_items").delete().eq("estimate_id",id).eq("user_id",uid);if(r.error)throw r.error;r=await db.from("estimates").delete().eq("id",id).eq("user_id",uid);if(r.error)throw r.error;await loadAll();toast("견적을 삭제했습니다.")}catch(e){toast("삭제 실패: "+e.message)}}
+function csvCell(v){let s=String(v??"");if(/^[=+\-@\t\r]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"'}
+function downloadFile(name,content,type){const url=URL.createObjectURL(new Blob([content],{type})),a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+function exportCSV(type){let headers,rows;if(type==="projects"){headers=["프로젝트명","상태","시작일","마감일","메모"];rows=projects.map(p=>[p.name,p.status,p.start_date,p.due_date,p.notes])}else{headers=["견적서","프로젝트","작성일","마감일","상태","공급가액","부가세율","부가세","합계","메모","항목","수량","단가"];rows=[];estimates.forEach(e=>(e.items?.length?e.items:[{desc:"",qty:"",price:""}]).forEach(i=>rows.push([e.title,projectName(e.project_id),e.date,e.due_date,e.status,e.subtotal,e.tax_rate,e.tax,e.total,e.notes,i.desc,i.qty,i.price])))}downloadFile(`${type==="projects"?"프로젝트":"견적"}_${today()}.csv`,"\uFEFF"+[headers,...rows].map(r=>r.map(csvCell).join(",")).join("\r\n"),"text/csv;charset=utf-8")}
+function exportJSON(){downloadFile(`archi-manager-backup-${today()}.json`,JSON.stringify({app:"ARCHI MANAGER",version:1,exportedAt:new Date().toISOString(),projects,estimates},null,2),"application/json;charset=utf-8")}
+async function importJSON(){const file=$("backupFile").files[0];if(!file)return toast("먼저 JSON 파일을 선택하세요.");if(!confirm("백업 데이터를 현재 계정에 추가할까요?"))return;try{const parsed=JSON.parse(await file.text());if(!Array.isArray(parsed.projects)||!Array.isArray(parsed.estimates))throw Error("백업 파일 형식이 올바르지 않습니다.");const uid=currentUser.id,map={};for(const p of parsed.projects){if(!p.name)continue;const {data,error}=await db.from("projects").insert({user_id:uid,name:String(p.name).slice(0,150),status:p.status||"문의",start_date:p.start_date||p.start||null,due_date:p.due_date||p.due||null,notes:p.notes||""}).select("id").single();if(error)throw error;map[p.id]=data.id}for(const e of parsed.estimates){if(!e.title)continue;const items=(Array.isArray(e.items)?e.items:[]).filter(i=>String(i.desc??i.description??"").trim()).map(i=>({description:String(i.desc??i.description).slice(0,200),qty:Number(i.qty)||1,unit_price:Number(i.price??i.unit_price)||0}));const sub=items.reduce((s,i)=>s+i.qty*i.unit_price,0),rate=Number(e.tax_rate??e.taxRate??10),tax=Math.round(sub*rate/100);const {data,error}=await db.from("estimates").insert({user_id:uid,title:String(e.title).slice(0,150),project_id:map[e.project_id??e.projectId]||null,date:e.date||today(),due_date:e.due_date||e.due||null,status:e.status||"작성 중",tax_rate:rate,subtotal:sub,tax,total:sub+tax,notes:e.notes||""}).select("id").single();if(error)throw error;if(items.length){const {error:itemError}=await db.from("estimate_items").insert(items.map(i=>({...i,user_id:uid,estimate_id:data.id})));if(itemError)throw itemError}}await loadAll();$("backupFile").value="";toast("백업 데이터를 복원했습니다.")}catch(e){toast("복원 실패: "+e.message)}}
+window.addEventListener("pageshow",async ev=>{if(ev.persisted){try{await db.auth.signOut({scope:"local"})}catch(e){}currentUser=null;$("app").classList.add("hidden");$("authScreen").classList.remove("hidden")}});
+</script></body></html>
